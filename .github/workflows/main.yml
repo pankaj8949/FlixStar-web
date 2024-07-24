@@ -26,11 +26,28 @@ jobs:
 
       # to build apk
       - run: flutter build apk --release --split-per-abi
+      # to push to Releases
+      #Build for web
+      - name: Build for web
+        run: flutter build web
+
+      # Adjust Base HREF
+      - name: Adjust Base HREF
+        run: sed -i 's|<base href="/">|<base href="/dooflix_web/">|' build/web/index.html
+
+      # Deploy To GitHub Pages
+      - name: Deploy To GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+
       - name: Push to Releases
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/apk/release/*"
           tag: v1.0.${{ github.run_number }}
           token: ${{ secrets.TOKEN }}
+
 # push to master, main, develop
 # pull request on main master
