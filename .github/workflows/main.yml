@@ -1,53 +1,31 @@
+name: Deploy Flutter Web App to GitHub Pages
+
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - master
-name: "Build & Release"
+
 jobs:
   build:
-    name: Build & Release
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: "zulu"
-          java-version: "18"
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          architecture: x64
-      # to Run flutter clean and flutter pub get
-      - run: flutter clean
-      - run: flutter pub get
+    runs-on: ubuntu-latest
 
-      # to build apk
-      - run: flutter build apk --release --split-per-abi
-      # to push to Releases
-      #Build for web
-      - name: Build for web
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.2.3'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web
         run: flutter build web
 
-      # Adjust Base HREF
-      - name: Adjust Base HREF
-        run: sed -i 's|<base href="/">|<base href="/dooflix_web/">|' build/web/index.html
-
-      # Deploy To GitHub Pages
-      - name: Deploy To GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
-
-      - name: Push to Releases
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "build/app/outputs/apk/release/*"
-          tag: v1.0.${{ github.run_number }}
-          token: ${{ secrets.TOKEN }}
-
-# push to master, main, develop
-# pull request on main master
