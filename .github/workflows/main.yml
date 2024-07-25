@@ -22,6 +22,11 @@ jobs:
       - name: Build web
         run: flutter build web
 
+      # Adjust Base HREF
+      - name: Adjust Base HREF
+        run: sed -i 's|<base href="/">|<base href="/FlixStar-web/">|' build/web/index.html
+
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
